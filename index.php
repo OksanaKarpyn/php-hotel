@@ -51,12 +51,10 @@ Se non viene specificato nessun filtro, visualizzare come in precedenza tutti gl
     ],
 
 ];
-$hotel = $_GET['nomeHotel'];
-$voto = $_GET['votoHotel'];
 
-$search= array_search($voto, $hotels);
-
-
+//$nomeHotel = isset($_GET['nomeHotel']) ? $_GET['nomeHotel'] : false;
+$votoHotel = isset($_GET['votoHotel']) ? $_GET['votoHotel'] : false; 
+$hasParking = isset($_GET['hasParking']) ? $_GET['hasParking'] : false;
 ?>
 
 <!DOCTYPE html>
@@ -75,26 +73,45 @@ $search= array_search($voto, $hotels);
     <div class="wrapper">
         <div class="container mt-5">
 
-       <!-- <ul>
+        <ul>
         <?php 
-    
-            foreach( $hotels as $elem ){
-                echo "<li>".$elem['name']."</li>";
-                echo "<li>".$elem['description']."</li>";
-                echo "<li>".$elem['parking']."</li>";
-                echo "<li".$elem['vote']."</li>";
-                echo "<li>".$elem['distance_to_center']."</li>";
+      
+
+      $hotelFiltered = array_filter($hotels, function($k) use($votoHotel,$hasParking) {
+            $voteFiltered= true;
+            //$nameFiltered= true;
+            $parkingFiltered= true;
+            // if($nomeHotel){
+            //     $nameFiltered = strpos($k['name'],$nomeHotel) != false;
+            // }
+            if($votoHotel){
+                $voteFiltered =  $k['vote'] >= $votoHotel;
             }
+            if($hasParking){
+                $parkingFiltered = $hasParking== $k['parking'];
+            }
+            return  $parkingFiltered &&  $voteFiltered; //&& $nameFiltered
+        });
+
+
+
+
+
+        
             ?>
-        </ul> -->
+        </ul> 
         <form action="index.php" method="GET">
-            <label for="primo">Nome Hotel</label>
-            <input type="text" name="nomeHotel" placeholder="inserisci  nome hotel" id="primo">
-            <label for="secondo">Voto da 1 a 5</label>
-            <input type="number" id="secondo" name="votoHotel" placeholder="inserisci numero">
+            <!-- <label for="name">Nome Hotel</label>
+            <input type="text" name="nomeHotel" placeholder="inserisci  nome hotel" id="name"> -->
+            <label for="vote">Voto da 1 a 5</label>
+            <input type="number" id="vote" name="votoHotel" placeholder="inserisci numero">
+            <label for="parking">parcheggio</label>
+            <input type="checkbox" name="hasParking" id="parking" value="true">
             <button type="submit">invia</button>
         </form>
-        <table class="table">
+
+
+        <table class="table mt-5">
   <thead>
     <tr>
       <th scope="col">Nome Hotel</th>
@@ -106,9 +123,17 @@ $search= array_search($voto, $hotels);
   </thead>
   <tbody>
         <?php
-  foreach( $hotels as $elem ){
-         echo "<tr>"."<td>".$elem['name']. "</td>". "<td>".$elem['description']."</td>" . "<td>".$elem['parking']."</td>". "<td>".$elem['vote']."</td>"."<td>".$elem['distance_to_center']."</td>"."</tr>";
-            }
+        
+     foreach( $hotelFiltered as $elem ){ 
+        echo "<tr>".
+               "<td>".$elem['name']. "</td>". 
+               "<td>".$elem['description']."</td>" .
+                "<td>".$elem['parking']."</td>".
+                 "<td>".$elem['vote']."</td>".
+                 "<td>".$elem['distance_to_center']."</td>"
+          ."</tr>";
+           
+    }
          ?>
   </tbody>
 </table>
